@@ -8,12 +8,8 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backen
 
 from utils.security import is_allowed_file
 from core.recipe_gecp_server import process_input
-from agents.api_client import call_api
-import importlib
-
-# Removed forced reload - not needed
-
 from agents.chat_controller import initialize_chat, reset_chat_flow, get_agent_response, extract_preferences
+from agents.genie_agent import genie_chat
 from agents.image_agent import generate_recipe_image
 from utils.pdf_generator import generate_recipe_card
 
@@ -622,47 +618,54 @@ with col_chat:
         else:
             # Post-recipe follow-up chat
             with st.spinner("Genie is thinking..."):
-                # Determine if user is requesting a recipe modification/customization
-                is_mod_prompt = (
-                    f"You are a routing agent. The user is in a chat session with an AI Chef. "
-                    f"The active recipe is: '{st.session_state.recipe['display_title']}'.\n"
-                    f"The user says: '{user_msg}'\n\n"
-                    f"Is the user asking to modify the recipe, change ingredients, swap items, adjust serving size, make it low carb/spicy/vegan/etc.? "
-                    f"Answer ONLY 'YES' or 'NO'."
-                )
-                try:
-                    is_mod = call_api(prompt=is_mod_prompt, json_mode=False).strip().upper()
-                except Exception:
-                    is_mod = "NO"
+                # Detect recipe modification intent via keyword matching (zero API calls)
+                MOD_KEYWORDS = [
+                    "change", "modify", "swap", "replace", "make it", "without",
+                    "add ", "remove", "vegan", "spicy", "less", "more", "instead",
+                    "adjust", "update", "redo", "different", "substitute", "switch",
+                    "serving", "portion", "gluten", "dairy", "low carb", "keto"
+                ]
+                user_lower = user_msg.lower()
+                is_mod = any(kw in user_lower for kw in MOD_KEYWORDS)
 
-                if "YES" in is_mod:
-                    # Request GECP update
+                if is_mod:
+                    # Genie regenerates the recipe with updated context — 1 API call
                     try:
-                        with st.spinner("Genie is modifying the recipe details..."):
+                        with st.spinner("Genie is updating the recipe..."):
                             prefs_extracted = extract_preferences()
-                            # Append latest request details to preferences summary
-                            prefs_extracted["summary"] = prefs_extracted.get("summary", "") + f"\nUser update request: {user_msg}"
-                            
+                            prefs_extracted["summary"] = (
+                                prefs_extracted.get("summary", "") +
+                                f"\nUser update request: {user_msg}"
+                            )
                             recipe = process_input(st.session_state.active_ingredients, prefs_extracted)
                             recipe["image_url"] = generate_recipe_image(recipe["display_title"], recipe["ingredients"])
                             st.session_state.recipe = recipe
-                            
-                            response_text = f"I have adjusted the recipe according to your request: \"{user_msg}\". The recipe cards, instructions, and hubs on the left have been updated!"
+                            response_text = (
+                                f'Done! I\'ve updated the recipe based on your request: "{user_msg}". '
+                                f"Check the recipe panels on the left — everything has been refreshed! 🧞✨"
+                            )
                             st.session_state.chat_history.append({"role": "assistant", "content": response_text})
                     except Exception as e:
                         st.error(f"Failed to update recipe: {e}")
                 else:
-                    # Regular conversational response
-                    system_instruction = (
-                        f"You are Genie, a helpful, friendly, and expert AI kitchen chef. "
-                        f"You just generated the recipe '{st.session_state.recipe['display_title']}' with these ingredients: {', '.join(st.session_state.recipe['ingredients'])}.\n"
-                        f"Chat with the user naturally about the recipe or cooking in general."
-                    )
+                    # Regular follow-up — Genie chats about the recipe (1 API call)
+                    from utils.memory_manager import load_user_profile
+                    user_uid = st.session_state.get("user_uid", "")
+                    user_profile = load_user_profile(user_uid)
+                    # Add recipe context to the last system message via ingredients
+                    ingredients_str = ", ".join(st.session_state.recipe.get("ingredients", []))
                     try:
-                        response_text = call_api(json_mode=False, system_instruction=system_instruction, messages=st.session_state.chat_history[-10:])
+                        response_text = genie_chat(
+                            ingredients=ingredients_str,
+                            chat_history=st.session_state.chat_history[-10:],
+                            user_profile=user_profile,
+                        )
                         st.session_state.chat_history.append({"role": "assistant", "content": response_text})
                     except Exception as e:
-                        st.session_state.chat_history.append({"role": "assistant", "content": f"Oops! I had trouble thinking of a reply. ({e})"})
+                        st.session_state.chat_history.append({
+                            "role": "assistant",
+                            "content": f"Oops! I had a hiccup. ({e})"
+                        })
                 st.rerun()
 
 # Force streamlit reload

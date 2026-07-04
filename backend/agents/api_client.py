@@ -38,7 +38,7 @@ def call_api(prompt: str = None, json_mode: bool = True, system_instruction: str
     if not api_key:
         raise ValueError("Quota full! Please try again later.")
         
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key={api_key}"
     
     body = {}
     
@@ -84,12 +84,12 @@ def call_api(prompt: str = None, json_mode: bool = True, system_instruction: str
     )
     
     max_retries = 3
-    base_delay = 2
+    base_delay = 5
     
     for attempt in range(max_retries):
         try:
             # 10-second timeout for prompt execution
-            with urllib.request.urlopen(req, timeout=10) as response:
+            with urllib.request.urlopen(req, timeout=30) as response:
                 res_data = response.read().decode("utf-8")
                 res_json = json.loads(res_data)
                 text_response = res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
@@ -108,9 +108,14 @@ def call_api(prompt: str = None, json_mode: bool = True, system_instruction: str
             error_body = e.read().decode("utf-8")
             if e.code == 429:
                 if attempt < max_retries - 1:
-                    time.sleep(base_delay * (2 ** attempt))
+                    wait_time = base_delay * (2 ** attempt)  # 10s, 20s, 40s
+                    time.sleep(wait_time)
                     continue
-                raise ValueError("Genie is a bit overwhelmed! The API rate limit was reached. Please wait a minute and try again.") from e
+                raise ValueError(
+                    "Genie's magic is temporarily at capacity! "
+                    "You've hit Google's free-tier API limit. "
+                    "Please wait 60 seconds and try again, or upgrade your Google AI API plan for uninterrupted use."
+                ) from e
             raise ValueError(f"API Error ({e.code}): {error_body}") from e
         except Exception as e:
             if attempt < max_retries - 1:
