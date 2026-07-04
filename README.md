@@ -1,110 +1,134 @@
 # 🧞‍♂️ MealGenie: Your Multi-Agent AI Kitchen Assistant
 
 <div align="center">
-  <img src="https://via.placeholder.com/800x400.png?text=MealGenie+Application+Interface" alt="MealGenie App Screenshot" />
+  <img src="https://via.placeholder.com/800x400.png?text=MealGenie+Modern+UI" alt="MealGenie App Screenshot" />
 </div>
 
-MealGenie is a next-generation, cloud-native web application built with Streamlit and powered by a swarm of specialized AI Agents. Simply tell Genie what ingredients you have, and watch as a team of AI experts—from a Head Chef to a Sommelier—collaborate to generate a stunning, personalized recipe card just for you!
+MealGenie is a cutting‑edge, cloud‑native web application that leverages a swarm of specialized AI agents to generate personalized recipes. The new architecture uses a **FastAPI** backend powered by Gemini AI and a **Next.js** (App Router) frontend with a premium glassmorphic design. User authentication and data persistence are handled via **Firebase**.
 
 ## ✨ Key Features
-- **Multi-Agent Architecture**: A synchronized pipeline of AI agents (Chef, Nutritionist, Pantry Manager, Sommelier, and Sustainability Expert) work together to craft the perfect meal.
-- **Secure Authentication**: Full login and sign-up capabilities powered by Firebase Authentication.
-- **Persistent Cloud Memory**: Uses Firebase Firestore to remember your specific allergies, dietary restrictions, likes, and dislikes across sessions.
-- **Dynamic Conversations**: Talk to Genie directly to update your preferences or ask for meal ideas.
-- **Export to PDF**: Instantly download your generated recipe card as a beautiful PDF.
-- **Premium UI/UX**: Features a modern, glassmorphic dark-mode design with fluid animations.
+- **Multi‑Agent Architecture**: Coordinated AI agents (Head Chef, Nutritionist, Pantry Manager, Sommelier, Sustainability Expert) collaborate to craft optimal meals.
+- **Secure Authentication**: Firebase Authentication provides login and sign‑up flows.
+- **Persistent Cloud Memory**: User preferences, allergies, and dietary restrictions are stored in Firebase Firestore.
+- **Dynamic Conversations**: Chat‑style interaction to tweak preferences or ask for ideas.
+- **Export to PDF**: Generate beautifully formatted recipe cards.
+- **Premium UI/UX**: Modern glassmorphism, dark mode, fluid animations, and responsive design.
 
 ---
 
-## 🤖 AI Multi-Agent Workflow
+## 🧩 Architecture Overview
 
 ```mermaid
 graph TD
-    User(["User Input: Ingredients & Preferences"]) --> Genie["Genie Controller Agent"]
-    Genie --> DB[("Firebase Firestore: User Profile")]
-    DB -.-> Genie
-    
-    Genie --> Chef["👨‍🍳 Head Chef Agent"]
-    Chef --> Recipe["Creates Base Recipe"]
-    
-    Recipe --> Nutri["🍎 Nutritionist Agent"]
-    Recipe --> Sommelier["🍷 Sommelier Agent"]
-    Recipe --> Pantry["🥫 Pantry Manager"]
-    
-    Nutri --> Review["Reviews & Adds Macros"]
-    Sommelier --> Review["Pairs Wine/Beverage"]
-    Pantry --> Review["Optimizes Ingredient Usage"]
-    
-    Review --> Format["Final Output"]
-    Format --> Final(["Stunning Recipe Card & PDF"])
+    User(["User: Ingredients & Preferences"]) -->|API Call| FrontEnd["Next.js Frontend"]
+    FrontEnd -->|Auth & Data| Firebase["Firebase Auth & Firestore"]
+    FrontEnd -->|POST /generate_recipe| Backend["FastAPI Backend"]
+    Backend -->|Calls| Gemini["Gemini AI Service"]
+    Gemini -->|Coordinates| Chef["Head Chef Agent"]
+    Chef -->|Creates Base Recipe| Recipe
+    Recipe -->|Feeds| Nutritionist["Nutritionist Agent"]
+    Recipe -->|Feeds| Sommelier["Sommelier Agent"]
+    Recipe -->|Feeds| Pantry["Pantry Manager"]
+    Nutritionist -->|Adds Macros| Review["Review"]
+    Sommelier -->|Pairs Wine| Review
+    Pantry -->|Optimizes Ingredients| Review
+    Review -->|Formats| Final["Stunning Recipe Card & PDF"]
 ```
 
 ---
 
 ## 📂 Project Structure
-The application follows a professional, modular architecture to separate core business logic, utility functions, and sensitive data.
-
-```text
+```
 MealGenie/
-  ├── app.py                   # Main Streamlit application entry point
-  ├── requirements.txt         # Project dependencies
-  ├── .gitignore               # Security exclusions
-  ├── agents/                  # AI logic and prompts
-  │   ├── chat_controller.py   # Manages conversations and memory extraction
-  │   ├── api_client.py        # Connects to the Gemini AI API
-  │   └── ...                  # (Chef, Nutritionist, Verifier, etc.)
-  ├── core/                    # Core business logic
-  │   ├── recipe_gecp_server.py# The main orchestration pipeline
-  │   ├── ingredienerator.py   # Legacy generation rules
-  │   └── narrator.py          # Adds emojis and fun text
-  ├── utils/                   # Helper utilities
-  │   ├── firebase_manager.py  # Handles Firebase Auth & Firestore
-  │   ├── memory_manager.py    # Interfaces with Firestore for profiles
-  │   ├── pdf_generator.py     # Generates downloadable recipe PDFs
-  │   ├── security.py          # Input sanitization
-  │   └── mnt_parser.py        # Ingredient cleaning and deduplication
-  ├── config/                  # (Git-ignored) Secrets and keys
-  │   └── firebase_credentials.json 
-  └── data/                    # (Git-ignored) Static data and caches
-      ├── recipe_cache.db
-      └── sample_ingredients.txt
+├── backend/                     # FastAPI server
+│   ├── main.py                 # Application entry point
+│   ├── api/
+│   │   └── routes.py          # Recipe generation endpoint
+│   └── requirements.txt        # Backend dependencies
+│
+├── frontend/                    # Next.js application (App Router)
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── layout.tsx      # Global layout, fonts, SEO
+│   │   │   └── page.tsx        # Home page (premium hero UI)
+│   │   ├── lib/
+│   │   │   ├── firebase.ts    # Firebase client SDK init
+│   │   │   └── api.ts         # Helper to call FastAPI
+│   │   └── styles/
+│   │       └── globals.css    # Glassmorphism design system
+│   ├── public/
+│   │   └── ...                 # Static assets
+│   ├── next.config.js          # Next.js config
+│   └── package.json            # Frontend dependencies (Tailwind, etc.)
+│
+└── .gitignore                  # Excludes config/, .env, node_modules, etc.
 ```
 
 ---
 
 ## 🚀 Installation & Setup
 
-Ready to start cooking with AI? Follow these simple steps to get MealGenie running locally on your machine!
-
 ### 1. Clone the repository
-Grab the code and move into the project directory:
 ```bash
 git clone https://github.com/ktkubracom/MealGenie-AI-Agent.git
 cd MealGenie-AI-Agent
 ```
 
-### 2. Install dependencies
-We recommend using a virtual environment. Once activated, install the required packages:
+### 2. Backend (FastAPI)
 ```bash
-pip install -r requirements.txt
+# Create and activate a Python virtual environment
+python -m venv venv
+source venv/bin/activate   # On Windows: venv\Scripts\activate
+
+# Install backend dependencies
+pip install -r backend/requirements.txt
 ```
-
-### 3. Configure your Secrets
-MealGenie relies on two magical ingredients to work: the Gemini AI and Firebase. Let's keep them safe!
-- **Gemini API:** Create a `.env` file in the root directory and securely add your API Key:
-  ```env
-  GEMINI_API_KEY="your-api-key-here"
-  ```
-- **Firebase Database:** Download your Firebase Admin SDK Service Account JSON file from your Firebase console. Rename it to `firebase_credentials.json` and place it snugly inside the `config/` folder. *(Don't worry, our `.gitignore` will ensure it never accidentally uploads to GitHub!)*
-
-### 4. Run the Application
-Time to fire up the kitchen! Start the Streamlit server:
+Create a `.env` file inside `backend/` with your Gemini API key:
+```
+GEMINI_API_KEY=your-gemini-api-key
+```
+Run the FastAPI server:
 ```bash
-streamlit run app.py
+uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 ```
-Open your browser to `http://localhost:8501`, create an account, and start generating recipes!
+The API will be available at `http://localhost:8000`.
+
+### 3. Frontend (Next.js)
+```bash
+cd frontend
+npm install
+```
+Create a `.env.local` file in `frontend/` with the following variables (replace placeholder values with your Firebase config):
+```
+NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-app.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789
+NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abcdef
+NEXT_PUBLIC_API_URL=http://localhost:8000  # Backend URL
+```
+Start the development server:
+```bash
+npm run dev
+```
+Open `http://localhost:3000` in your browser to see the new MealGenie UI.
+
+---
+
+## 📦 Deployment
+### Frontend
+Deploy the Next.js app to **Vercel** (recommended) or any static hosting that supports Node.js.
+1. Push the `frontend/` folder to a Git repository.
+2. Connect the repo to Vercel and set the same environment variables as in `.env.local`.
+3. Vercel will automatically build and serve the site.
+
+### Backend
+Deploy the FastAPI server to a cloud provider (e.g., **Render**, **Fly.io**, **Google Cloud Run**, **AWS Elastic Beanstalk**). Ensure the `GEMINI_API_KEY` environment variable is set in the deployment environment.
 
 ---
 
 ## 🛡️ Security Note
-This project utilizes a strict `.gitignore` policy. The `config/` directory, `data/` directory, and `.env` files are explicitly excluded from version control to protect API keys and database credentials from being exposed publicly.
+The `backend/.env` file and the Firebase service account JSON are excluded via `.gitignore`. Never commit secret keys or credentials to the repository.
+
+Feel free to explore, customize, and contribute! 🎉

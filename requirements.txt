@@ -1,3 +1,7 @@
 streamlit
 firebase-admin
 requests
+fastapi
+uvicorn
+pydantic
+python-multipart
