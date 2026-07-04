@@ -79,8 +79,8 @@ Ready to start cooking with AI? Follow these simple steps to get MealGenie runni
 ### 1. Clone the repository
 Grab the code and move into the project directory:
 ```bash
-git clone https://github.com/yourusername/MealGenie.git
-cd MealGenie
+git clone https://github.com/ktkubracom/MealGenie-AI-Agent.git
+cd MealGenie-AI-Agent
 ```
 
 ### 2. Install dependencies
