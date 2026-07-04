@@ -1,5 +1,9 @@
 # 🧞‍♂️ MealGenie: Your Multi-Agent AI Kitchen Assistant
 
+<div align="center">
+  <img src="https://via.placeholder.com/800x400.png?text=MealGenie+Application+Interface" alt="MealGenie App Screenshot" />
+</div>
+
 MealGenie is a next-generation, cloud-native web application built with Streamlit and powered by a swarm of specialized AI Agents. Simply tell Genie what ingredients you have, and watch as a team of AI experts—from a Head Chef to a Sommelier—collaborate to generate a stunning, personalized recipe card just for you!
 
 ## ✨ Key Features
@@ -9,6 +13,31 @@ MealGenie is a next-generation, cloud-native web application built with Streamli
 - **Dynamic Conversations**: Talk to Genie directly to update your preferences or ask for meal ideas.
 - **Export to PDF**: Instantly download your generated recipe card as a beautiful PDF.
 - **Premium UI/UX**: Features a modern, glassmorphic dark-mode design with fluid animations.
+
+---
+
+## 🤖 AI Multi-Agent Workflow
+
+```mermaid
+graph TD
+    User([User Input: Ingredients & Preferences]) --> Genie[Genie Controller Agent]
+    Genie --> DB[(Firebase Firestore: User Profile)]
+    DB -.-> Genie
+    
+    Genie --> Chef[👨‍🍳 Head Chef Agent]
+    Chef --> Recipe[Creates Base Recipe]
+    
+    Recipe --> Nutri[🍎 Nutritionist Agent]
+    Recipe --> Sommelier[🍷 Sommelier Agent]
+    Recipe --> Pantry[🥫 Pantry Manager]
+    
+    Nutri --> Review[Reviews & Adds Macros]
+    Sommelier --> Review[Pairs Wine/Beverage]
+    Pantry --> Review[Optimizes Ingredient Usage]
+    
+    Review --> Format[Final Output]
+    Format --> Final([Stunning Recipe Card & PDF])
+```
 
 ---
 
