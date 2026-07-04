@@ -7,6 +7,17 @@ import time
 
 def get_api_key() -> str:
     """Load API Key from environment or .env file (checks API_KEY and GEMINI_API_KEY)."""
+    # 1. Try Streamlit Secrets (for Streamlit Cloud deployment)
+    try:
+        import streamlit as st
+        if "GEMINI_API_KEY" in st.secrets:
+            return st.secrets["GEMINI_API_KEY"]
+        if "API_KEY" in st.secrets:
+            return st.secrets["API_KEY"]
+    except Exception:
+        pass
+
+    # 2. Try OS Environment Variables
     key = os.environ.get("API_KEY") or os.environ.get("GEMINI_API_KEY")
     if key:
         return key
