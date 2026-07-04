@@ -20,23 +20,23 @@ MealGenie is a next-generation, cloud-native web application built with Streamli
 
 ```mermaid
 graph TD
-    User([User Input: Ingredients & Preferences]) --> Genie[Genie Controller Agent]
-    Genie --> DB[(Firebase Firestore: User Profile)]
+    User(["User Input: Ingredients & Preferences"]) --> Genie["Genie Controller Agent"]
+    Genie --> DB[("Firebase Firestore: User Profile")]
     DB -.-> Genie
     
-    Genie --> Chef[👨‍🍳 Head Chef Agent]
-    Chef --> Recipe[Creates Base Recipe]
+    Genie --> Chef["👨‍🍳 Head Chef Agent"]
+    Chef --> Recipe["Creates Base Recipe"]
     
-    Recipe --> Nutri[🍎 Nutritionist Agent]
-    Recipe --> Sommelier[🍷 Sommelier Agent]
-    Recipe --> Pantry[🥫 Pantry Manager]
+    Recipe --> Nutri["🍎 Nutritionist Agent"]
+    Recipe --> Sommelier["🍷 Sommelier Agent"]
+    Recipe --> Pantry["🥫 Pantry Manager"]
     
-    Nutri --> Review[Reviews & Adds Macros]
-    Sommelier --> Review[Pairs Wine/Beverage]
-    Pantry --> Review[Optimizes Ingredient Usage]
+    Nutri --> Review["Reviews & Adds Macros"]
+    Sommelier --> Review["Pairs Wine/Beverage"]
+    Pantry --> Review["Optimizes Ingredient Usage"]
     
-    Review --> Format[Final Output]
-    Format --> Final([Stunning Recipe Card & PDF])
+    Review --> Format["Final Output"]
+    Format --> Final(["Stunning Recipe Card & PDF"])
 ```
 
 ---
