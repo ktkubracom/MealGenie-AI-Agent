@@ -1,14 +1,17 @@
 import streamlit as st
 import json
+import os
+import sys
+
+# Ensure backend directory is in sys.path so we can import from agents, core, utils
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend'))
+
 from utils.security import is_allowed_file
 from core.recipe_gecp_server import process_input
 from agents.api_client import call_api
 import importlib
-import sys
 
-# Force reload the module to bypass Streamlit's cache
-if "agents.chat_controller" in sys.modules:
-    importlib.reload(sys.modules["agents.chat_controller"])
+# Removed forced reload - not needed
 
 from agents.chat_controller import initialize_chat, reset_chat_flow, get_agent_response, extract_preferences
 from agents.image_agent import generate_recipe_image
