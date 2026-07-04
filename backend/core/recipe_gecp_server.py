@@ -118,7 +118,7 @@ def process_input(raw_text: str, preferences: dict = None) -> dict:
     pairing_res = None
     sustainability_res = None
 
-    with ThreadPoolExecutor(max_workers=4) as executor:
+    with ThreadPoolExecutor(max_workers=1) as executor:
         # Submit tasks
         future_nut = executor.submit(analyze_nutrition, recipe_data.get("title", "Genie Dish"), filtered_ingredients)
         future_pan = executor.submit(suggest_substitutes, recipe_data.get("title", "Genie Dish"), filtered_ingredients)
