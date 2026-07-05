@@ -1,7 +1,7 @@
-# 🧞‍♂️ MealGenie: Your Personal AI Kitchen Concierge
+#  MealGenie: Your Personal AI Kitchen Concierge
 
 <div align="center">
-  <img src="assets/mealgenie_hero.png" alt="MealGenie Dashboard" />
+  <img src="assets/MealGenie-Dashboard.png" alt="MealGenie Dashboard" />
 </div>
 
 ## 📌 Track: Concierge Agents
