@@ -605,54 +605,54 @@ with col_chat:
             # Post-recipe follow-up chat
             with chat_container:
                 with st.spinner("Genie is thinking..."):
-                # Detect recipe modification intent via keyword matching (zero API calls)
-                MOD_KEYWORDS = [
-                    "change", "modify", "swap", "replace", "make it", "without",
-                    "add ", "remove", "vegan", "spicy", "less", "more", "instead",
-                    "adjust", "update", "redo", "different", "substitute", "switch",
-                    "serving", "portion", "gluten", "dairy", "low carb", "keto"
-                ]
-                user_lower = user_msg.lower()
-                is_mod = any(kw in user_lower for kw in MOD_KEYWORDS)
-
-                if is_mod:
-                    # Genie regenerates the recipe with updated context — 1 API call
-                    try:
-                        with st.spinner("Genie is updating the recipe..."):
-                            prefs_extracted = extract_preferences()
-                            prefs_extracted["summary"] = (
-                                prefs_extracted.get("summary", "") +
-                                f"\nUser update request: {user_msg}"
-                            )
-                            recipe = process_input(st.session_state.active_ingredients, prefs_extracted)
-                            recipe["image_url"] = generate_recipe_image(recipe["display_title"], recipe["ingredients"])
-                            st.session_state.recipe = recipe
-                            response_text = (
-                                f'Done! I\'ve updated the recipe based on your request: "{user_msg}". '
-                                f"Check the recipe panels on the left — everything has been refreshed! 🧞✨"
+                    # Detect recipe modification intent via keyword matching (zero API calls)
+                    MOD_KEYWORDS = [
+                        "change", "modify", "swap", "replace", "make it", "without",
+                        "add ", "remove", "vegan", "spicy", "less", "more", "instead",
+                        "adjust", "update", "redo", "different", "substitute", "switch",
+                        "serving", "portion", "gluten", "dairy", "low carb", "keto"
+                    ]
+                    user_lower = user_msg.lower()
+                    is_mod = any(kw in user_lower for kw in MOD_KEYWORDS)
+    
+                    if is_mod:
+                        # Genie regenerates the recipe with updated context — 1 API call
+                        try:
+                            with st.spinner("Genie is updating the recipe..."):
+                                prefs_extracted = extract_preferences()
+                                prefs_extracted["summary"] = (
+                                    prefs_extracted.get("summary", "") +
+                                    f"\nUser update request: {user_msg}"
+                                )
+                                recipe = process_input(st.session_state.active_ingredients, prefs_extracted)
+                                recipe["image_url"] = generate_recipe_image(recipe["display_title"], recipe["ingredients"])
+                                st.session_state.recipe = recipe
+                                response_text = (
+                                    f'Done! I\'ve updated the recipe based on your request: "{user_msg}". '
+                                    f"Check the recipe panels on the left — everything has been refreshed! 🧞✨"
+                                )
+                                st.session_state.chat_history.append({"role": "assistant", "content": response_text})
+                        except Exception as e:
+                            st.error(f"Failed to update recipe: {e}")
+                    else:
+                        # Regular follow-up — Genie chats about the recipe (1 API call)
+                        from utils.memory_manager import load_user_profile
+                        user_uid = st.session_state.get("user_uid", "")
+                        user_profile = load_user_profile(user_uid)
+                        # Add recipe context to the last system message via ingredients
+                        ingredients_str = ", ".join(st.session_state.recipe.get("ingredients", []))
+                        try:
+                            response_text = genie_chat(
+                                ingredients=ingredients_str,
+                                chat_history=st.session_state.chat_history[-10:],
+                                user_profile=user_profile,
                             )
                             st.session_state.chat_history.append({"role": "assistant", "content": response_text})
-                    except Exception as e:
-                        st.error(f"Failed to update recipe: {e}")
-                else:
-                    # Regular follow-up — Genie chats about the recipe (1 API call)
-                    from utils.memory_manager import load_user_profile
-                    user_uid = st.session_state.get("user_uid", "")
-                    user_profile = load_user_profile(user_uid)
-                    # Add recipe context to the last system message via ingredients
-                    ingredients_str = ", ".join(st.session_state.recipe.get("ingredients", []))
-                    try:
-                        response_text = genie_chat(
-                            ingredients=ingredients_str,
-                            chat_history=st.session_state.chat_history[-10:],
-                            user_profile=user_profile,
-                        )
-                        st.session_state.chat_history.append({"role": "assistant", "content": response_text})
-                    except Exception as e:
-                        st.session_state.chat_history.append({
-                            "role": "assistant",
-                            "content": f"Oops! I had a hiccup. ({e})"
-                        })
+                        except Exception as e:
+                            st.session_state.chat_history.append({
+                                "role": "assistant",
+                                "content": f"Oops! I had a hiccup. ({e})"
+                            })
                 st.rerun()
 
 # Force streamlit reload
