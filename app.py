@@ -309,7 +309,7 @@ with col_main:
         # App Title Header
         st.markdown("""
         <div class="title-container">
-            <h1>MealGenie</h1>
+            <h1>MealGenie - AI Agent</h1>
         </div>
         <div class="subtitle">Your multi-agent AI kitchen assistant.</div>
         """, unsafe_allow_html=True)
@@ -534,7 +534,7 @@ with col_main:
             st.rerun()
 
 with col_chat:
-    st.subheader("Genie Consultation Chat")
+    st.subheader("Chat with Genie!")
     
     # Custom styling for chat area container
     st.markdown("""
