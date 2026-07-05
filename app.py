@@ -549,6 +549,38 @@ with col_chat:
         overflow-y: auto;
         border: 1px solid rgba(255, 255, 255, 0.05);
     }
+    /* Memory Pills */
+    .memory-tracker-container {
+        border-radius: 12px;
+        background: rgba(30, 41, 59, 0.4);
+        padding: 15px;
+        margin-top: 10px;
+        margin-bottom: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .memory-tracker-title {
+        font-size: 0.9rem;
+        color: #94A3B8;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .pill {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-right: 6px;
+        margin-bottom: 6px;
+    }
+    .pill.allergy { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .pill.like { background: rgba(34, 197, 94, 0.2); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .pill.dislike { background: rgba(249, 115, 22, 0.2); color: #fdba74; border: 1px solid rgba(249, 115, 22, 0.3); }
+    .pill.diet { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+    
+    .stChatInputContainer {
     </style>
     """, unsafe_allow_html=True)
 
@@ -557,6 +589,29 @@ with col_chat:
         for chat in st.session_state.chat_history:
             with st.chat_message(chat["role"]):
                 st.write(chat["content"])
+
+    # Memory Tracker Card
+    from utils.memory_manager import load_user_profile
+    user_prof = load_user_profile(st.session_state.get("user_uid", ""))
+    
+    st.markdown("<div class='memory-tracker-container'>", unsafe_allow_html=True)
+    st.markdown("<div class='memory-tracker-title'>🧠 Genie Memory Tracker</div>", unsafe_allow_html=True)
+    
+    pills_html = ""
+    if user_prof.get("diet"):
+        pills_html += f"<span class='pill diet'>Diet: {user_prof['diet']}</span>"
+    for al in user_prof.get("allergies", []):
+        pills_html += f"<span class='pill allergy'>🚫 {al}</span>"
+    for lk in user_prof.get("likes", []):
+        pills_html += f"<span class='pill like'>❤️ {lk}</span>"
+    for dl in user_prof.get("dislikes", []):
+        pills_html += f"<span class='pill dislike'>👎 {dl}</span>"
+        
+    if pills_html:
+        st.markdown(f"<div>{pills_html}</div>", unsafe_allow_html=True)
+    else:
+        st.markdown("<div style='font-size:0.8rem; color:#64748B;'>The Genie is listening... tell it your preferences!</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
     # Chat input box
     user_msg = st.chat_input("Answer Genie or Ask follow-ups...")
