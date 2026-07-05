@@ -559,29 +559,6 @@ with col_chat:
             with st.chat_message(chat["role"]):
                 st.write(chat["content"])
 
-    # --- Agent Memory State Card ---
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("#### 🧠 Agent Memory State")
-    from utils.memory_manager import load_user_profile
-    user_prof = load_user_profile(st.session_state.get("user_uid", "guest"))
-    
-    st.markdown("<div style='background: rgba(30, 41, 59, 0.4); padding: 15px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 20px;'>", unsafe_allow_html=True)
-    c1, c2, c3 = st.columns(3)
-    def render_chips(items, color_bg, color_text):
-        if not items:
-            return "<span style='color: #94A3B8; font-size: 0.85em;'>None</span>"
-        return "".join([f"<span style='background: {color_bg}; color: {color_text}; padding: 3px 8px; border-radius: 10px; font-size: 0.8em; margin-right: 4px; display: inline-block; margin-bottom: 4px;'>{x}</span>" for x in items])
-    
-    with c1:
-        st.markdown("**🟢 Likes**")
-        st.markdown(render_chips(user_prof.get("likes", []), "rgba(34, 197, 94, 0.2)", "#4ade80"), unsafe_allow_html=True)
-    with c2:
-        st.markdown("**🔴 Allergies**")
-        st.markdown(render_chips(user_prof.get("allergies", []), "rgba(239, 68, 68, 0.2)", "#f87171"), unsafe_allow_html=True)
-    with c3:
-        st.markdown("**🟡 Diet**")
-        st.markdown(render_chips(user_prof.get("dietary_restrictions", []), "rgba(234, 179, 8, 0.2)", "#facc15"), unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
 
     # Chat input box
     user_msg = st.chat_input("Answer Genie or Ask follow-ups...")
