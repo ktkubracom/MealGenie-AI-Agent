@@ -16,42 +16,10 @@ from utils.pdf_generator import generate_recipe_card
 # Page configuration
 st.set_page_config(page_title="MealGenie", page_icon="🧞", layout="wide")
 
-from utils.firebase_manager import sign_in_with_email_and_password, sign_up_with_email_and_password
-
 if "user_uid" not in st.session_state:
-    st.session_state.user_uid = None
+    st.session_state.user_uid = "guest"
 if "user_email" not in st.session_state:
-    st.session_state.user_email = None
-
-if not st.session_state.user_uid:
-    st.markdown("<br><br><h1 style='text-align: center; font-size: 4rem; color: #FF6B6B;'>MealGenie</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #94A3B8; font-size: 1.2rem;'>Your multi-agent AI kitchen assistant.</p>", unsafe_allow_html=True)
-    
-    col_l, col_m, col_r = st.columns([1, 2, 1])
-    with col_m:
-        st.markdown("<div style='background: rgba(15, 23, 42, 0.5); padding: 40px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); margin-top: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);'>", unsafe_allow_html=True)
-        auth_mode = st.radio("Choose Action", ["Log In", "Sign Up"], horizontal=True)
-        email = st.text_input("Email")
-        password = st.text_input("Password", type="password")
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        if st.button("Submit", type="primary", use_container_width=True):
-            if not email or not password:
-                st.error("Please enter email and password.")
-            else:
-                try:
-                    with st.spinner("Authenticating..."):
-                        if auth_mode == "Log In":
-                            res = sign_in_with_email_and_password(email, password)
-                        else:
-                            res = sign_up_with_email_and_password(email, password)
-                        st.session_state.user_uid = res["localId"]
-                        st.session_state.user_email = email
-                        st.rerun()
-                except Exception as e:
-                    st.error(f"Authentication Failed: {e}")
-        st.markdown("</div>", unsafe_allow_html=True)
-    st.stop()
+    st.session_state.user_email = "guest@mealgenie.local"
 
 # Custom CSS for modern, premium look, float animations, and cards
 st.markdown("""
@@ -352,11 +320,7 @@ with col_main:
         <div class="subtitle">Your multi-agent AI kitchen assistant.</div>
         """, unsafe_allow_html=True)
     with col_logout:
-        st.markdown(f"<div style='text-align: right; color: #94A3B8; margin-bottom: 8px;'>👤 {st.session_state.get('user_email', '')}</div>", unsafe_allow_html=True)
-        if st.button("Log Out", use_container_width=True):
-            st.session_state.user_uid = None
-            st.session_state.user_email = None
-            st.rerun()
+        pass # Placeholder to preserve layout
 
     # Establish Permanent Tabs on the Left Side
     tab_recipe, tab_nutrition, tab_pantry, tab_sommelier = st.tabs([
