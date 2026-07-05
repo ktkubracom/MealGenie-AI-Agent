@@ -17,9 +17,10 @@ from utils.pdf_generator import generate_recipe_card
 st.set_page_config(page_title="MealGenie", page_icon="🧞", layout="wide")
 
 if "user_uid" not in st.session_state:
-    st.session_state.user_uid = "guest"
+    import uuid
+    st.session_state.user_uid = f"guest_{uuid.uuid4().hex[:8]}"
 if "user_email" not in st.session_state:
-    st.session_state.user_email = "guest@mealgenie.local"
+    st.session_state.user_email = f"{st.session_state.user_uid}@mealgenie.local"
 
 # Custom CSS for modern, premium look, float animations, and cards
 st.markdown("""
