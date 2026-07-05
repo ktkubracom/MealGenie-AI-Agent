@@ -5,23 +5,27 @@ import urllib.error
 import time
 
 
-def get_api_key() -> str:
-    """Load API Key from environment or .env file (checks API_KEY and GEMINI_API_KEY)."""
-    # 1. Try Streamlit Secrets (for Streamlit Cloud deployment)
+def get_all_api_keys() -> list:
+    """Load all available API Keys from environment, Streamlit secrets, or .env file."""
+    keys = []
+    
+    # 1. Try OS Environment Variables
+    for k, v in os.environ.items():
+        if "API_KEY" in k and v.strip() and v.strip() not in keys:
+            keys.append(v.strip())
+            
+    # 2. Try Streamlit Secrets
     try:
         import streamlit as st
-        if "GEMINI_API_KEY" in st.secrets:
-            return st.secrets["GEMINI_API_KEY"]
-        if "API_KEY" in st.secrets:
-            return st.secrets["API_KEY"]
+        for k in st.secrets:
+            if "API_KEY" in k:
+                val = st.secrets[k]
+                if val and val not in keys:
+                    keys.append(val)
     except Exception:
         pass
 
-    # 2. Try OS Environment Variables
-    key = os.environ.get("API_KEY") or os.environ.get("GEMINI_API_KEY")
-    if key:
-        return key
-
+    # 3. Read .env files manually
     base_dirs = [
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         os.path.dirname(os.path.abspath(__file__)),
@@ -34,13 +38,19 @@ def get_api_key() -> str:
                 with open(env_path, "r", encoding="utf-8") as f:
                     for line in f:
                         line_str = line.strip()
-                        if line_str.startswith("API_KEY="):
-                            return line_str.split("=", 1)[1].strip()
-                        elif line_str.startswith("GEMINI_API_KEY="):
-                            return line_str.split("=", 1)[1].strip()
+                        if "API_KEY" in line_str and "=" in line_str:
+                            val = line_str.split("=", 1)[1].strip()
+                            # remove quotes if they exist
+                            if val.startswith('"') and val.endswith('"'):
+                                val = val[1:-1]
+                            if val.startswith("'") and val.endswith("'"):
+                                val = val[1:-1]
+                            if val and val not in keys:
+                                keys.append(val)
             except Exception:
                 pass
-    return ""
+                
+    return keys
 
 
 def _parse_retry_delay(error_body: str) -> float:
@@ -80,17 +90,12 @@ def call_api(
     system_instruction: str = None,
     messages: list = None,
 ) -> str:
-    """Call the Gemini API. Raises ValueError on quota limits, missing keys, or timeouts."""
-    api_key = get_api_key()
-    if not api_key:
+    """Call the Gemini API. Falls back to next key if quota is exhausted."""
+    api_keys = get_all_api_keys()
+    if not api_keys:
         raise ValueError(
-            "No API key found. Please set API_KEY=your_key in your .env file."
+            "No API keys found. Please set API_KEY=your_key in your .env file."
         )
-
-    url = (
-        f"https://generativelanguage.googleapis.com/v1beta/models/"
-        f"gemini-2.5-flash:generateContent?key={api_key}"
-    )
 
     body = {}
 
@@ -115,58 +120,67 @@ def call_api(
         body["generationConfig"] = {"responseMimeType": "application/json"}
 
     data = json.dumps(body).encode("utf-8")
-    req = urllib.request.Request(
-        url, data=data, headers={"Content-Type": "application/json"}, method="POST"
-    )
-
+    
+    last_error = None
     max_retries = 3
 
-    for attempt in range(max_retries):
-        try:
-            with urllib.request.urlopen(req, timeout=30) as response:
-                res_data = response.read().decode("utf-8")
-                res_json = json.loads(res_data)
-                text_response = (
-                    res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
-                )
+    # Try each available API key
+    for api_key in api_keys:
+        url = (
+            f"https://generativelanguage.googleapis.com/v1beta/models/"
+            f"gemini-2.5-flash:generateContent?key={api_key}"
+        )
+        req = urllib.request.Request(
+            url, data=data, headers={"Content-Type": "application/json"}, method="POST"
+        )
+        
+        for attempt in range(max_retries):
+            try:
+                with urllib.request.urlopen(req, timeout=30) as response:
+                    res_data = response.read().decode("utf-8")
+                    res_json = json.loads(res_data)
+                    text_response = (
+                        res_json["candidates"][0]["content"]["parts"][0]["text"].strip()
+                    )
 
-                if json_mode and text_response.startswith("```"):
-                    lines = text_response.splitlines()
-                    if lines[0].startswith("```"):
-                        lines = lines[1:]
-                    if lines[-1].startswith("```"):
-                        lines = lines[:-1]
-                    text_response = "\n".join(lines).strip()
+                    if json_mode and text_response.startswith("```"):
+                        lines = text_response.splitlines()
+                        if lines[0].startswith("```"):
+                            lines = lines[1:]
+                        if lines[-1].startswith("```"):
+                            lines = lines[:-1]
+                        text_response = "\n".join(lines).strip()
 
-                return text_response
+                    return text_response
 
-        except urllib.error.HTTPError as e:
-            error_body = e.read().decode("utf-8")
+            except urllib.error.HTTPError as e:
+                error_body = e.read().decode("utf-8")
 
-            if e.code == 429:
-                # Daily quota exhausted — retrying is pointless, fail immediately
-                if _is_daily_quota_exhausted(error_body):
-                    raise ValueError(
-                        "Your API key's daily quota is fully used up for today.\n"
-                        "Fix: Go to https://aistudio.google.com/app/apikey, "
-                        "create a NEW API key, and replace it in your .env file "
-                        "as: API_KEY=your_new_key_here"
-                    ) from e
+                if e.code == 429:
+                    # Daily quota exhausted — fail this key immediately, move to next key
+                    if _is_daily_quota_exhausted(error_body):
+                        last_error = f"Daily quota exhausted for key starting with {api_key[:5]}"
+                        break 
 
-                # Per-minute rate limit — wait the delay the API tells us, then retry
+                    # Per-minute rate limit — wait the delay the API tells us, then retry
+                    if attempt < max_retries - 1:
+                        wait_time = _parse_retry_delay(error_body)
+                        time.sleep(wait_time)
+                        continue
+
+                    # If retries for rate limit fail, move to next key
+                    last_error = "Per-minute API rate limit reached on all retries."
+                    break
+
+                # If it's a 400 Bad Request or similar, it's not a quota issue, raise immediately
+                raise ValueError(f"API Error ({e.code}): {error_body}") from e
+
+            except Exception as e:
                 if attempt < max_retries - 1:
-                    wait_time = _parse_retry_delay(error_body)
-                    time.sleep(wait_time)
+                    time.sleep(5)
                     continue
+                last_error = f"API call failed: {e}"
+                break # Move to next key
 
-                raise ValueError(
-                    "Per-minute API rate limit reached. Please wait 30 seconds and try again."
-                ) from e
-
-            raise ValueError(f"API Error ({e.code}): {error_body}") from e
-
-        except Exception as e:
-            if attempt < max_retries - 1:
-                time.sleep(5)
-                continue
-            raise ValueError(f"API call failed: {e}") from e
+    # If we exit the loop, all keys failed
+    raise ValueError(f"All available API keys failed. Last error: {last_error}")
