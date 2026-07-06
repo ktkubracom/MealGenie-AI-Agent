@@ -8,8 +8,7 @@
 ## **Live App:** [Try MealGenie Here](https://mealgenieai.streamlit.app/)
 
 ## 🎥 Demo Video
-[![Watch MealGenie in Action!](https://img.youtube.com/vi/YOUR_VIDEO_ID/maxresdefault.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
-*(Note: Replace `YOUR_VIDEO_ID` with your actual YouTube video ID)*
+[![Watch MealGenie in Action!](https://img.youtube.com/vi/ANiEsd61GYE/maxresdefault.jpg)](https://www.youtube.com/watch?v=ANiEsd61GYE)
 
 ## 📌 Track: Concierge Agents
 **MealGenie** is submitted under the **Concierge Agents** track for the Kaggle Vibecoding Capstone Project. It serves as a personal AI assistant that streamlines daily meal planning, helping families solve the "what's for dinner" challenge while safely tracking dietary needs and allergies.
