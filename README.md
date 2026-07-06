@@ -4,7 +4,7 @@
   <img src="assets/MealGenie-Dashboard.png" alt="MealGenie Dashboard" />
 </div>
 
-**Live App:** [Try MealGenie Here](https://mealgenieai.streamlit.app/)
+## **Live App:** [Try MealGenie Here](https://mealgenieai.streamlit.app/)
 
 ## 📌 Track: Concierge Agents
 **MealGenie** is submitted under the **Concierge Agents** track for the Kaggle Vibecoding Capstone Project. It serves as a personal AI assistant that streamlines daily meal planning, helping families solve the "what's for dinner" challenge while safely tracking dietary needs and allergies.
