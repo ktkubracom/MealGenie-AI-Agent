@@ -139,7 +139,7 @@ The `.streamlit/secrets.toml` file is excluded via `.gitignore`. **Never include
 ---
 
 ## 🤝 Acknowledgements
-Special thanks to the **Kaggle Vibecoding** team for providing the 5-Day AI Agents Intensive course, which inspired the foundational architecture of this project.
+Special thanks to **Google** and the **Kaggle** team for providing the 5-Day AI Agents Intensive course, which inspired the foundational architecture of this project.
 
 ---
 *Submitted for the Kaggle Vibecoding Capstone Project.*
