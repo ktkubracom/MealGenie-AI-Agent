@@ -7,6 +7,10 @@
 
 ## **Live App:** [Try MealGenie Here](https://mealgenieai.streamlit.app/)
 
+## 🎥 Demo Video
+[![Watch the Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/maxresdefault.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+*(Note: Replace `YOUR_VIDEO_ID` with your actual YouTube video ID)*
+
 ## 📌 Track: Concierge Agents
 **MealGenie** is submitted under the **Concierge Agents** track for the Kaggle Vibecoding Capstone Project. It serves as a personal AI assistant that streamlines daily meal planning, helping families solve the "what's for dinner" challenge while safely tracking dietary needs and allergies.
 
@@ -22,6 +26,14 @@ Every day, households waste a massive amount of food simply because people don't
 - **Reduces Food Waste**: Generates recipes based exactly on what's in the fridge.
 - **Saves Time**: Instantly provides complete meal prep instructions, macros, and drink pairings.
 - **Personalized & Safe**: Remembers allergies and diet restrictions, ensuring all recommendations are safe to consume.
+
+---
+
+## 🛠️ Tech Stack
+- **Frontend:** Streamlit
+- **AI Model:** Google Gemini (Pro & Vision)
+- **Language:** Python
+- **Architecture:** Agentic Orchestration
 
 ---
 
@@ -67,6 +79,21 @@ MealGenie is designed to be fully deployable as a cloud application. It utilizes
 
 ---
 
+## 📂 Project Code Structure
+```text
+MealGenie-AI-Agent/
+├── .streamlit/          # Streamlit configuration and secrets
+├── assets/              # Images and dashboard screenshots
+├── backend/             # AI agents and core logic (Genie Personas)
+├── frontend/            # Frontend components
+├── logs/                # Application logs
+├── app.py               # Main Streamlit application entry point
+├── requirements.txt     # Python dependencies
+└── README.md            # Project documentation
+```
+
+---
+
 ## 🚀 Installation & Setup
 
 ### 1. Clone the repository
@@ -108,6 +135,11 @@ The application will open in your default browser at `http://localhost:8501`.
 
 ## 🛡️ Security Note
 The `.streamlit/secrets.toml` file is excluded via `.gitignore`. **Never include any API keys or passwords in your submitted code.** The application relies on local environmental variables or Streamlit Secrets.
+
+---
+
+## 🤝 Acknowledgements
+Special thanks to the **Kaggle Vibecoding** team for providing the 5-Day AI Agents Intensive course, which inspired the foundational architecture of this project.
 
 ---
 *Submitted for the Kaggle Vibecoding Capstone Project.*
