@@ -3,11 +3,11 @@
 <div align="center">
   <img src="assets/MealGenie-Dashboard.png" alt="MealGenie Dashboard" />
   <br/>
-  <img src="01.png" alt="Screenshot 1" width="48%" />
-  <img src="02.png" alt="Screenshot 2" width="48%" />
-  <img src="03.png" alt="Screenshot 3" width="48%" />
-  <img src="04.png" alt="Screenshot 4" width="48%" />
-  <img src="05.png" alt="Screenshot 5" width="48%" />
+  <img src="assets/01.png" alt="Screenshot 1" width="48%" />
+  <img src="assets/02.png" alt="Screenshot 2" width="48%" />
+  <img src="assets/03.png" alt="Screenshot 3" width="48%" />
+  <img src="assets/04.png" alt="Screenshot 4" width="48%" />
+  <img src="assets/05.png" alt="Screenshot 5" width="48%" />
 </div>
 
 ## **Live App:** [Try MealGenie Here](https://mealgenieai.streamlit.app/)
